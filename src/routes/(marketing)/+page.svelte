@@ -24,16 +24,21 @@
 	</Section.Root>
 	<Section.Root anchor="services">
 		<Section.Header>
-			<Section.Title>Our <span class="text-primary">Services</span></Section.Title>
+			<Section.Title
+				>Our <span class="text-primary">Services</span></Section.Title
+			>
 			<Section.Description class="text-balance">
-				Detailed analysis and strategic insights to give you a critical edge in your legal cases.
+				Detailed analysis and strategic insights to give you a critical edge in
+				your legal cases.
 			</Section.Description>
 		</Section.Header>
 		<OurServices />
 	</Section.Root>
 	<Section.Root anchor="about">
 		<Section.Header>
-			<Section.Title>About <span class="text-primary">Paul Rouleau</span></Section.Title>
+			<Section.Title
+				>About <span class="text-primary">Paul Rouleau</span></Section.Title
+			>
 			<Section.Description class="text-balance">
 				Meet the expert behind CrossCheckCME.
 			</Section.Description>
@@ -42,15 +47,22 @@
 	</Section.Root>
 	<Section.Root anchor="testimonials">
 		<Section.Header>
-			<Section.Title>What Experts Are <span class="text-primary">Saying</span></Section.Title>
+			<Section.Title
+				>What Experts Are <span class="text-primary">Saying</span
+				></Section.Title
+			>
 		</Section.Header>
 		<Testimonials />
 	</Section.Root>
 	<Section.Root anchor="pricing">
 		<Section.Header>
-			<Section.Title>Service <span class="text-primary">Pricing</span></Section.Title>
+			<Section.Title
+				>Service <span class="text-primary">Pricing</span></Section.Title
+			>
 			<Section.Description class="text-balance">
-				Transparent pricing for comprehensive CME report analysis. Standard turnaround is typically [Specify Timeframe e.g., 5-7 business days]. Expedited services available.
+				Transparent pricing for comprehensive CME report analysis. Standard
+				turnaround is typically [Specify Timeframe e.g., 5-7 business days].
+				Expedited services available.
 			</Section.Description>
 		</Section.Header>
 		<Pricing {prices} />

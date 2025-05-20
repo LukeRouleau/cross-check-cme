@@ -9,7 +9,8 @@
 	const testimonials = [
 		{
 			author: {
-				avatarUrl: 'https://www.forthepeople.com/sites/default/files/styles/max_650x650_webp/public/2025-02/John_Berke_1000x1000.png.webp?itok=pR966X_o',
+				avatarUrl:
+					'https://www.forthepeople.com/sites/default/files/styles/max_650x650_webp/public/2025-02/John_Berke_1000x1000.png.webp?itok=pR966X_o',
 				name: 'John Berke',
 				sub: 'Attorney at Law',
 			},
@@ -31,7 +32,8 @@
 				name: 'Robert Smith',
 				sub: 'Legal Counsel',
 			},
-			quote: 'Quick, efficient, and thorough. The reports are easy to understand and extremely helpful in deposition.',
+			quote:
+				'Quick, efficient, and thorough. The reports are easy to understand and extremely helpful in deposition.',
 		},
 		{
 			author: {
@@ -40,7 +42,7 @@
 				sub: 'Paralegal',
 			},
 			quote:
-				"The insights provided saved us countless hours of work. Highly recommend for any legal team dealing with CMEs.",
+				'The insights provided saved us countless hours of work. Highly recommend for any legal team dealing with CMEs.',
 		},
 	];
 </script>
@@ -71,7 +73,9 @@
 			</Testimonials.Figure>
 		{/each}
 	{:else}
-		<p class="text-center text-muted-foreground">No testimonials yet. Check back soon!</p>
+		<p class="text-center text-muted-foreground">
+			No testimonials yet. Check back soon!
+		</p>
 	{/if}
 </Testimonials.Root>
 
@@ -115,7 +119,9 @@
 				{/each}
 			{:else}
 				<Carousel.Item>
-					<p class="p-4 text-center text-muted-foreground">No testimonials yet. Check back soon!</p>
+					<p class="p-4 text-center text-muted-foreground">
+						No testimonials yet. Check back soon!
+					</p>
 				</Carousel.Item>
 			{/if}
 		</Carousel.Content>

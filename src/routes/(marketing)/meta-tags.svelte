@@ -2,7 +2,10 @@
 </script>
 
 <svelte:head>
-	<meta name="title" content="CrossCheckCME - Expert CME Report Analysis for Attorneys" />
+	<meta
+		name="title"
+		content="CrossCheckCME - Expert CME Report Analysis for Attorneys"
+	/>
 	<meta
 		name="description"
 		content="CrossCheckCME provides meticulous peer reviews and critiques of Comprehensive Medical Exams (CMEs) for attorneys. Leverage Paul Rouleau's 31 years of orthopedic physical therapy expertise to uncover critical insights, strengthen your case, and prepare for trial."

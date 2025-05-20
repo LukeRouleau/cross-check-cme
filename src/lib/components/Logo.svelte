@@ -11,8 +11,8 @@
 		'bg-primary text-primary-foreground',
 		'rounded font-bold',
 		'text-sm',
-		'overflow-hidden'
+		'overflow-hidden',
 	)}
 >
-	<span class="leading-none font-serif pl-0.5 tracking-tighter">✗✓</span>
+	<span class="pl-0.5 font-serif leading-none tracking-tighter">✗✓</span>
 </div>

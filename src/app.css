@@ -7,29 +7,30 @@
 
 @layer base {
 	:root {
-		--background: 0 0% 100%;            /* Cleaner white */
-		--foreground: 222 47% 11%;          /* Dark blue text (kept) */
-		--card: 0 0% 100%;                  /* White cards */
+		--background: 0 0% 100%; /* Cleaner white */
+		--foreground: 222 47% 11%; /* Dark blue text (kept) */
+		--card: 0 0% 100%; /* White cards */
 		--card-foreground: 222 47% 11%;
 		--popover: 0 0% 100%;
 		--popover-foreground: 222 47% 11%;
-		--primary: 217 91% 55%;             /* Brighter blue */
-		--primary-foreground: 0 0% 100%;     /* White text on primary */
-		--secondary: 220 20% 94%;           /* Very light gray for secondary elements */
+		--primary: 217 91% 55%; /* Brighter blue */
+		--primary-foreground: 0 0% 100%; /* White text on primary */
+		--secondary: 220 20% 94%; /* Very light gray for secondary elements */
 		--secondary-foreground: 222 30% 30%; /* Darker gray-blue text for on-secondary */
-		--muted: 220 20% 96%;               /* Subtle light gray */
-		--muted-foreground: 220 20% 45%;     /* Medium gray muted text */
-		--accent: 217 91% 55%;              /* Same as primary */
+		--muted: 220 20% 96%; /* Subtle light gray */
+		--muted-foreground: 220 20% 45%; /* Medium gray muted text */
+		--accent: 217 91% 55%; /* Same as primary */
 		--accent-foreground: 0 0% 100%;
-		--destructive: 0 70% 45%;            /* Adjusted destructive for light bg */
+		--destructive: 0 70% 45%; /* Adjusted destructive for light bg */
 		--destructive-foreground: 0 0% 100%;
-		--border: 220 15% 88%;              /* Light clean gray border */
-		--input: 220 15% 88%;               /* Matching input border */
-		--ring: 217 91% 65%;                /* Lighter blue for focus ring */
+		--border: 220 15% 88%; /* Light clean gray border */
+		--input: 220 15% 88%; /* Matching input border */
+		--ring: 217 91% 65%; /* Lighter blue for focus ring */
 		--radius: 0.5rem;
-		
+
 		/* Font families */
-		--font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+		--font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+			Roboto, sans-serif;
 		--font-accent: 'Lora', Georgia, serif;
 	}
 	.dark {
@@ -65,8 +66,10 @@
 		/* Apply dark theme by default if preferred, by adding 'dark' class to <html> or body */
 		/* For SvelteKit, this is often managed in app.html or a root layout component */
 	}
-	
-	h1, h2, h3 {
+
+	h1,
+	h2,
+	h3 {
 		font-family: 'Lora', Georgia, serif;
 	}
 }

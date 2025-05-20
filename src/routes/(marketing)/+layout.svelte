@@ -181,7 +181,7 @@
 	</div>
 </header>
 
-<main class="container mx-auto p-8 bg-background">
+<main class="container mx-auto bg-background p-8">
 	<slot />
 </main>
 

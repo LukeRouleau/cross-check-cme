@@ -42,19 +42,34 @@
 			</Price.Core>
 			<Card.Footer>
 				<Pricing.PlanFeatures>
-					<Pricing.FeatureItem icon={ClipboardListIcon} iconClass="text-muted-foreground">
+					<Pricing.FeatureItem
+						icon={ClipboardListIcon}
+						iconClass="text-muted-foreground"
+					>
 						Complete analysis of the defense's medical examinations
 					</Pricing.FeatureItem>
-					<Pricing.FeatureItem icon={FilePenLineIcon} iconClass="text-muted-foreground">
+					<Pricing.FeatureItem
+						icon={FilePenLineIcon}
+						iconClass="text-muted-foreground"
+					>
 						Detailed inline transcript annotations
 					</Pricing.FeatureItem>
-					<Pricing.FeatureItem icon={GavelIcon} iconClass="text-muted-foreground">
+					<Pricing.FeatureItem
+						icon={GavelIcon}
+						iconClass="text-muted-foreground"
+					>
 						In-depth medical critique
 					</Pricing.FeatureItem>
-					<Pricing.FeatureItem icon={HelpCircleIcon} iconClass="text-muted-foreground">
+					<Pricing.FeatureItem
+						icon={HelpCircleIcon}
+						iconClass="text-muted-foreground"
+					>
 						Targeted cross-examination questions
 					</Pricing.FeatureItem>
-					<Pricing.FeatureItem icon={SearchSlashIcon} iconClass="text-muted-foreground">
+					<Pricing.FeatureItem
+						icon={SearchSlashIcon}
+						iconClass="text-muted-foreground"
+					>
 						Identifies incorrect tests, omissions & inconsistencies
 					</Pricing.FeatureItem>
 					<Pricing.FeatureItem icon={ClockIcon} iconClass="text-sky-600">
@@ -83,7 +98,10 @@
 			</Price.Core>
 			<Card.Footer>
 				<Pricing.PlanFeatures>
-					<Pricing.FeatureItem icon={CheckCircleIcon} iconClass="text-muted-foreground">
+					<Pricing.FeatureItem
+						icon={CheckCircleIcon}
+						iconClass="text-muted-foreground"
+					>
 						All Standard Service Features
 					</Pricing.FeatureItem>
 					<Pricing.FeatureItem icon={ClockIcon} iconClass="text-amber-500">
@@ -115,13 +133,19 @@
 			</Price.Core>
 			<Card.Footer>
 				<Pricing.PlanFeatures>
-					<Pricing.FeatureItem icon={CheckCircleIcon} iconClass="text-muted-foreground">
+					<Pricing.FeatureItem
+						icon={CheckCircleIcon}
+						iconClass="text-muted-foreground"
+					>
 						All Standard Service Features
 					</Pricing.FeatureItem>
 					<Pricing.FeatureItem icon={ZapIcon} iconClass="text-red-600">
 						Urgent Delivery: Within 2 business days
 					</Pricing.FeatureItem>
-					<Pricing.FeatureItem icon={AlertOctagonIcon} iconClass="text-green-600">
+					<Pricing.FeatureItem
+						icon={AlertOctagonIcon}
+						iconClass="text-green-600"
+					>
 						Top priority for critical deadlines
 					</Pricing.FeatureItem>
 				</Pricing.PlanFeatures>

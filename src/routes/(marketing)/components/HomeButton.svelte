@@ -9,5 +9,7 @@
 	href="/"
 >
 	<Logo />
-	<span class="font-accent">CrossCheck<span class="text-primary italic">CME</span></span>
+	<span class="font-accent"
+		>CrossCheck<span class="italic text-primary">CME</span></span
+	>
 </Button>
