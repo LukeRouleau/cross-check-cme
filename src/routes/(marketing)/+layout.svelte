@@ -16,7 +16,10 @@
 
 	const menuItems = {
 		'/': 'Home',
-		'/#features': 'Features',
+		'/#services': 'Our Services',
+		'/#about': 'About Us',
+		// 'sample': 'Sample Report', // Placeholder, will need a page/section
+		'/#testimonials': 'Testimonials',
 		'/#pricing': 'Pricing',
 		'/contact': 'Contact',
 	};
@@ -49,7 +52,7 @@
 			{#if data.user}
 				<Button href="/dashboard">Dashboard</Button>
 			{:else}
-				<Button href="/login">Get Started Now</Button>
+				<Button href="/#contact">Request a Consultation</Button>
 			{/if}
 			<PersonalMenu user={data.user} />
 		</div>
@@ -125,20 +128,20 @@
 							{#if !data.user}
 								<li>
 									<Button
-										href="/register"
+										href="/#contact"
 										variant="ghost"
 										class="w-full py-6 text-base"
 									>
-										Register
+										Request a Consultation
 									</Button>
 								</li>
 								<li>
 									<Button
-										href="/login"
+										href="/#pricing"
 										variant="ghost"
 										class="w-full py-6 text-base"
 									>
-										Log in
+										View Pricing
 									</Button>
 								</li>
 							{:else}
@@ -178,7 +181,7 @@
 	</div>
 </header>
 
-<main class="container mx-auto p-8">
+<main class="container mx-auto p-8 bg-background">
 	<slot />
 </main>
 
@@ -213,21 +216,28 @@
 					</nav>
 				</div>
 				<div class="col">
-					<span class="footer-title">App</span>
+					<span class="footer-title">Service</span>
 					<nav>
 						<Button
-							href="/login"
+							href="/contact"
 							variant="link"
 							class="block h-auto p-0 text-start text-base font-normal text-muted-foreground"
 						>
-							Login
+							Request a Consultation
 						</Button>
 						<Button
-							href="/register"
+							href="/#pricing"
 							variant="link"
 							class="block h-auto p-0 text-start text-base font-normal text-muted-foreground"
 						>
-							Register
+							Pricing
+						</Button>
+						<Button
+							href="/#contract"
+							variant="link"
+							class="block h-auto p-0 text-start text-base font-normal text-muted-foreground"
+						>
+							Contract (Coming Soon)
 						</Button>
 					</nav>
 				</div>
@@ -237,34 +247,24 @@
 						<Button
 							variant="link"
 							class="block h-auto p-0 text-start text-base font-normal text-muted-foreground"
-							href="https://kizivat.eu"
+							href="https://www.optatherapy.com"
 							target="_blank"
 						>
-							David Kizivat
+							Orthopedic Physical Therapy Associates
 						</Button>
 						<Button
 							variant="link"
 							class="block h-auto p-0 text-start text-base font-normal text-muted-foreground"
-							href="https://twitter.com/kizivat"
-							target="_blank"
+							href="#"
 						>
-							@kizivat at 𝕏
+							OPTAdvising (Coming Soon)
 						</Button>
 						<Button
 							variant="link"
 							class="block h-auto p-0 text-start text-base font-normal text-muted-foreground"
-							href="https://github.com/kizivat"
-							target="_blank"
+							href="#"
 						>
-							GitHub
-						</Button>
-						<Button
-							variant="link"
-							class="block h-auto p-0 text-start text-base font-normal text-muted-foreground"
-							href="https://www.linkedin.com/in/david-kizivat/"
-							target="_blank"
-						>
-							LinkedIn
+							LinkedIn (Coming Soon)
 						</Button>
 					</nav>
 				</div>
@@ -274,21 +274,11 @@
 			&copy; {new Date().getFullYear()}
 			{WebsiteName} created by <Button
 				variant="link"
-				href="https://kizivat.eu"
+				href="https://lukerouleau.com"
 				target="_blank"
 				class="h-auto p-0 text-primary underline hover:no-underline"
-				>David Kizivat</Button
-			>. Based on <Button
-				variant="link"
-				class="h-auto p-0 text-primary underline hover:no-underline"
-				href="https://github.com/CriticalMoments/CMSaasStarter"
-				target="_blank">CriticalMoments/CMSaasStarter</Button
-			>. Landing page design inspired by Leo Miranda's <Button
-				variant="link"
-				class="h-auto p-0 text-primary underline hover:no-underline"
-				href="https://shadcn-landing-page.vercel.app/"
-				target="_blank">Shadcn Landing Page</Button
-			>.
+				>Luke Rouleau</Button
+			>
 		</p>
 	</div>
 </footer>

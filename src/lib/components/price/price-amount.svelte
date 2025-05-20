@@ -38,7 +38,7 @@
 					: ''}
 			/>
 			<span class="self-end text-nowrap text-sm text-muted-foreground">
-				/ {price.recurring ? price.recurring.interval : 'lifetime'}
+				/ {price.recurring ? price.recurring.interval : 'review'}
 			</span>
 		</div>
 	</div>
@@ -53,7 +53,7 @@
 			}).format(price.unit_amount / 100)}
 		</span>
 		<span class="text-nowrap text-sm text-muted-foreground">
-			/ {price.recurring ? price.recurring.interval : 'lifetime'}
+			/ {price.recurring ? price.recurring.interval : 'review'}
 		</span>
 	</div>
 {/if}

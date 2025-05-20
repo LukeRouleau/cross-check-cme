@@ -4,6 +4,18 @@
 	import Stripe from 'stripe';
 	import * as Price from '../../../../lib/components/price/index.js';
 
+	// Icon imports
+	import ClockIcon from '~icons/lucide/clock';
+	import ClipboardListIcon from '~icons/lucide/clipboard-list';
+	import FilePenLineIcon from '~icons/lucide/file-pen-line';
+	import GavelIcon from '~icons/lucide/gavel';
+	import HelpCircleIcon from '~icons/lucide/help-circle';
+	import SearchSlashIcon from '~icons/lucide/search-slash';
+	import CheckCircleIcon from '~icons/lucide/check-circle';
+	import TrendingUpIcon from '~icons/lucide/trending-up';
+	import ZapIcon from '~icons/lucide/zap';
+	import AlertOctagonIcon from '~icons/lucide/alert-octagon';
+
 	type Price = Stripe.Price & {
 		product: Stripe.Product;
 	};
@@ -24,16 +36,29 @@
 			</Card.Header>
 			<Price.Core price={prices[0]}>
 				<Card.Content class="flex flex-col gap-6">
-					<!-- <span class="text-5xl font-black tracking-tight">$0</span> -->
 					<Price.Amount price={prices[0]} />
-					<Price.Button price={prices[0]}>Get Started</Price.Button>
+					<Price.Button price={prices[0]}>Select Standard</Price.Button>
 				</Card.Content>
 			</Price.Core>
 			<Card.Footer>
 				<Pricing.PlanFeatures>
-					<Pricing.FeatureItem>Everything</Pricing.FeatureItem>
-					<Pricing.FeatureItem>
-						Good kickstart for your product
+					<Pricing.FeatureItem icon={ClipboardListIcon} iconClass="text-muted-foreground">
+						Complete analysis of the defense's medical examinations
+					</Pricing.FeatureItem>
+					<Pricing.FeatureItem icon={FilePenLineIcon} iconClass="text-muted-foreground">
+						Detailed inline transcript annotations
+					</Pricing.FeatureItem>
+					<Pricing.FeatureItem icon={GavelIcon} iconClass="text-muted-foreground">
+						In-depth medical critique
+					</Pricing.FeatureItem>
+					<Pricing.FeatureItem icon={HelpCircleIcon} iconClass="text-muted-foreground">
+						Targeted cross-examination questions
+					</Pricing.FeatureItem>
+					<Pricing.FeatureItem icon={SearchSlashIcon} iconClass="text-muted-foreground">
+						Identifies incorrect tests, omissions & inconsistencies
+					</Pricing.FeatureItem>
+					<Pricing.FeatureItem icon={ClockIcon} iconClass="text-sky-600">
+						Delivered within 20 business days
 					</Pricing.FeatureItem>
 				</Pricing.PlanFeatures>
 			</Card.Footer>
@@ -52,16 +77,20 @@
 			</Card.Header>
 			<Price.Core price={prices[1]}>
 				<Card.Content class="flex flex-col gap-6">
-					<!-- <span class="text-5xl font-black tracking-tight">$0</span> -->
 					<Price.Amount price={prices[1]} />
-					<Price.Button price={prices[1]}>Get Started</Price.Button>
+					<Price.Button price={prices[1]}>Select Expedited</Price.Button>
 				</Card.Content>
 			</Price.Core>
 			<Card.Footer>
 				<Pricing.PlanFeatures>
-					<Pricing.FeatureItem>Everything from free</Pricing.FeatureItem>
-					<Pricing.FeatureItem>
-						Warm fuzzy feeling for both of us
+					<Pricing.FeatureItem icon={CheckCircleIcon} iconClass="text-muted-foreground">
+						All Standard Service Features
+					</Pricing.FeatureItem>
+					<Pricing.FeatureItem icon={ClockIcon} iconClass="text-amber-500">
+						Accelerated Delivery: Within 10 business days
+					</Pricing.FeatureItem>
+					<Pricing.FeatureItem icon={TrendingUpIcon} iconClass="text-green-600">
+						Priority case handling
 					</Pricing.FeatureItem>
 				</Pricing.PlanFeatures>
 			</Card.Footer>
@@ -80,18 +109,21 @@
 			</Card.Header>
 			<Price.Core price={prices[2]}>
 				<Card.Content class="flex flex-col gap-6">
-					<!-- <span class="text-5xl font-black tracking-tight">$0</span> -->
 					<Price.Amount price={prices[2]} />
-					<Price.Button price={prices[2]}>Get Started</Price.Button>
+					<Price.Button price={prices[2]}>Select Express</Price.Button>
 				</Card.Content>
 			</Price.Core>
 			<Card.Footer>
 				<Pricing.PlanFeatures>
-					<Pricing.FeatureItem>
-						Everything from free and "Say thanks"
+					<Pricing.FeatureItem icon={CheckCircleIcon} iconClass="text-muted-foreground">
+						All Standard Service Features
 					</Pricing.FeatureItem>
-					<Pricing.FeatureItem>Logo cloud spot</Pricing.FeatureItem>
-					<Pricing.FeatureItem>Your logo in the README</Pricing.FeatureItem>
+					<Pricing.FeatureItem icon={ZapIcon} iconClass="text-red-600">
+						Urgent Delivery: Within 2 business days
+					</Pricing.FeatureItem>
+					<Pricing.FeatureItem icon={AlertOctagonIcon} iconClass="text-green-600">
+						Top priority for critical deadlines
+					</Pricing.FeatureItem>
 				</Pricing.PlanFeatures>
 			</Card.Footer>
 		</Card.Root>

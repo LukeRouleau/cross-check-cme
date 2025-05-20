@@ -4,16 +4,15 @@
 
 <div
 	role="img"
-	aria-label="SaaS Kit logo"
+	aria-label="CrossCheck CME logo"
 	class={cn(
 		'aspect-square size-6',
-		'flex flex-col items-center justify-center',
+		'flex items-center justify-center',
 		'bg-primary text-primary-foreground',
-		'-rotate-12 rounded font-bold',
-		'text-xs',
-		'[&_*]:mt-[-2px] [&_*]:leading-[0.85]',
+		'rounded font-bold',
+		'text-sm',
+		'overflow-hidden'
 	)}
 >
-	<span>sa</span>
-	<span>as</span>
+	<span class="leading-none font-serif pl-0.5 tracking-tighter">✗✓</span>
 </div>

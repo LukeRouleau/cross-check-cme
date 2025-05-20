@@ -44,6 +44,8 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@fontsource/lora": "^5.2.5",
+		"@fontsource/playfair-display": "^5.2.5",
 		"@supabase/ssr": "^0.3.0",
 		"@supabase/supabase-js": "^2.43.1",
 		"bits-ui": "^0.21.10",
