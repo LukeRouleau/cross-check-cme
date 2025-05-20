@@ -33,7 +33,7 @@ declare global {
 			context: {
 				waitUntil(promise: Promise<any>): void;
 			};
-			caches: CacheStorage & { default: Cache }
+			caches: CacheStorage & { default: Cache };
 		}
 	}
 }
