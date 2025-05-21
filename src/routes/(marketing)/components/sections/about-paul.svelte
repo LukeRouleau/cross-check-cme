@@ -34,7 +34,9 @@
 				in trial. Paul offers this high-value service with a fast turnaround
 				time and attention to detail.
 			</p>
-			<div class="mt-6 flex flex-col gap-2 min-[400px]:flex-row">
+			<div
+				class="mt-6 flex flex-col gap-2 min-[400px]:flex-row min-[400px]:flex-wrap min-[400px]:justify-center"
+			>
 				<Button href="/#contact" size="lg">Request a Consultation</Button>
 				<Button href="/#services" variant="outline" size="lg"
 					>Learn About Our Services</Button

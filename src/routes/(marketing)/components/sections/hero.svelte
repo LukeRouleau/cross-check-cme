@@ -85,7 +85,9 @@
 				</div>
 
 				<!-- CTA Buttons -->
-				<div class="flex flex-col justify-center gap-3 sm:flex-row">
+				<div
+					class="flex flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap sm:justify-center"
+				>
 					<Button
 						href="/#contact"
 						size="lg"
