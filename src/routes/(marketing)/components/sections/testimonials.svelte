@@ -15,7 +15,7 @@
 				sub: 'Attorney at Law',
 			},
 			quote:
-				"I have been working with Physical Therapist Paul Rouleau to review the CME report, CME video, and CME deposition transcript in detail. He meticulously critiques the CME doctor's evaluation, identifying areas for scrutiny. Paul provides a comprehensive redline report that highlights tests the CME doctor performed incorrectly, tests claimed to have been completed in the report but were not done, tests that should have been done and key questions to ask the CME doctor during testimony. Additionally, his report includes precise timestamps to quickly locate relevant sections in the video. Paul charges $750 for this service and offers a quick turnaround. He serves as a consultant, not a retained expert.",
+				"I have been working with Physical Therapist Paul Rouleau to review the CME report, CME video, and CME deposition transcript in detail. He meticulously critiques the CME doctor's evaluation, identifying areas for scrutiny. Paul provides a comprehensive redline report that highlights tests the CME doctor performed incorrectly, tests claimed to have been completed in the report but were not done, tests that should have been done and key questions to ask the CME doctor during testimony. Additionally, his report includes precise timestamps to quickly locate relevant sections in the video. He serves as a consultant, not a retained expert.",
 		},
 		{
 			author: {
