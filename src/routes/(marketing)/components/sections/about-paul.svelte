@@ -2,7 +2,7 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 </script>
 
-<div class="py-8 md:py-12">
+<div class="container mx-auto px-4 py-8 sm:px-6 md:py-12 lg:px-8">
 	<div class="grid items-center gap-8 md:grid-cols-2 lg:gap-12">
 		<div>
 			<!-- Placeholder for an image of Paul Rouleau if available -->
