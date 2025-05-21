@@ -8,12 +8,12 @@ export default defineConfig({
 		Icons({
 			compiler: 'svelte',
 			autoInstall: true,
-			iconCustomizer(collection, icon, props) {
+			iconCustomizer(_collection, _icon, _props) {
 				// customize all icons in this collection
-				if (collection === 'lucide') {
-					props.width = '1.5rem';
-					props.height = '1.5rem';
-				}
+				// if (collection === 'lucide') {
+				// 	props.width = '1.5rem';
+				// 	props.height = '1.5rem';
+				// }
 			},
 		}),
 	],
