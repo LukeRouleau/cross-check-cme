@@ -11,8 +11,27 @@
 	import Trash2 from '~icons/lucide/trash-2';
 	import ArrowLeft from '~icons/lucide/arrow-left';
 	import ArrowRight from '~icons/lucide/arrow-right';
+	import { onMount } from 'svelte';
 
 	export let data: PageData;
+
+	// Helper to safely convert string to InitiationStep
+	function isValidInitiationStep(
+		stepId: string | null | undefined,
+	): stepId is InitiationStep {
+		return ['terms', 'files', 'instructions', 'payment', 'review'].includes(
+			stepId || '',
+		);
+	}
+
+	function getSafeInitiationStep(
+		stepId: string | null | undefined,
+	): InitiationStep {
+		if (isValidInitiationStep(stepId)) {
+			return stepId;
+		}
+		return 'terms'; // Default step
+	}
 
 	interface StepConfig {
 		id: InitiationStep;
@@ -28,45 +47,71 @@
 		{ id: 'review', title: 'Review & Submit' },
 	];
 
-	let caseItem: Tables<'cases'> | undefined = undefined; // Allow undefined for initialization
+	let caseItem: Tables<'cases'> | undefined; // Will be initialized from data source
 	let isSavingAgreement = false;
 	let isDeleting = false;
 
-	let currentStepId: InitiationStep = 'terms';
+	let currentStepId: InitiationStep = 'terms'; // Default, will be set by initializeStateFromDataSource
 	let completedSteps: Set<InitiationStep> = new Set();
+	let componentKey = 0;
+	let initialized = false;
 
-	let componentKey = 0; // For re-rendering TermsStep if needed
+	// Function to set initial/reloaded state from a case data source
+	function initializeStateFromDataSource(
+		sourceCaseItem: Tables<'cases'> | undefined | null,
+	) {
+		if (sourceCaseItem) {
+			caseItem = sourceCaseItem; // Update local caseItem to match the source
+			currentStepId = getSafeInitiationStep(
+				sourceCaseItem.case_initiation_step_id,
+			);
 
-	// Initialize caseItem from data and manage completedSteps reactively
-	$: {
-		let newCaseItem = data?.caseItem;
-
-		if (
-			newCaseItem &&
-			(caseItem === undefined || (caseItem && caseItem.id !== newCaseItem.id))
-		) {
-			caseItem = newCaseItem;
-		} else if (!newCaseItem && data !== undefined) {
+			const newCompletedSteps = new Set<InitiationStep>();
+			const loadedStepIndex = steps.findIndex((s) => s.id === currentStepId);
+			for (let i = 0; i < loadedStepIndex; i++) {
+				newCompletedSteps.add(steps[i].id);
+			}
+			if (sourceCaseItem.client_agreed_to_terms_id) {
+				newCompletedSteps.add('terms');
+			}
+			// Note: 'files' and other steps will update completedSteps via their own events.
+			completedSteps = newCompletedSteps;
+		} else {
 			caseItem = undefined;
+			currentStepId = 'terms';
+			completedSteps = new Set();
 		}
-
-		// Update for 'files' step completion is handled by handleStepStatusChange via event from FileUploadStep
 	}
 
-	// Derive currentAgreedStatus reactively from caseItem
+	onMount(() => {
+		initializeStateFromDataSource(data.caseItem);
+		initialized = true;
+	});
+
+	// Reactive sync: If data.caseItem from loader changes instance, re-initialize state.
+	// This handles page reloads or SvelteKit invalidations that re-run the load function.
+	let previousDataCaseItemInstance: Tables<'cases'> | undefined | null =
+		data.caseItem;
+	$: if (initialized && data.caseItem !== previousDataCaseItemInstance) {
+		initializeStateFromDataSource(data.caseItem);
+		previousDataCaseItemInstance = data.caseItem; // Update tracker for the instance
+	}
+
+	// Derive currentAgreedStatus reactively from local caseItem (which is updated from server responses)
 	$: currentAgreedStatus = !!caseItem?.client_agreed_to_terms_id;
 
-	// Reactively update completedSteps for the 'terms' step based on currentAgreedStatus
-	$: {
+	// Live update for terms completion based on currentAgreedStatus (from local caseItem)
+	$: if (initialized && caseItem) {
+		// Check initialized and caseItem to run after onMount and if case exists
 		if (currentAgreedStatus) {
 			if (!completedSteps.has('terms')) {
 				completedSteps.add('terms');
-				completedSteps = new Set(completedSteps); // Trigger reactivity
+				completedSteps = new Set(completedSteps);
 			}
 		} else {
 			if (completedSteps.has('terms')) {
 				completedSteps.delete('terms');
-				completedSteps = new Set(completedSteps); // Trigger reactivity
+				completedSteps = new Set(completedSteps);
 			}
 		}
 	}
@@ -126,6 +171,14 @@
 
 	function navigateStep(direction: 'next' | 'previous' | InitiationStep) {
 		const currentIndex = steps.findIndex((s) => s.id === currentStepId);
+		const currentStoredStepId =
+			data.caseItem?.case_initiation_step_id || 'terms';
+		const currentStoredStepIndex = steps.findIndex(
+			(s) => s.id === currentStoredStepId,
+		);
+
+		let newStepIdToPersist: InitiationStep | null = null;
+
 		if (direction === 'next') {
 			if (!canProceed()) {
 				toast.warning('Please complete the current step before proceeding.');
@@ -133,29 +186,74 @@
 			}
 			completedSteps.add(currentStepId);
 			if (currentIndex < steps.length - 1) {
-				currentStepId = steps[currentIndex + 1].id;
+				const nextStep = steps[currentIndex + 1].id;
+				currentStepId = nextStep;
+				// Only persist if advancing beyond the last known persisted step
+				if (currentIndex + 1 > currentStoredStepIndex) {
+					newStepIdToPersist = nextStep;
+				}
 			}
 		} else if (direction === 'previous') {
 			if (currentIndex > 0) {
 				currentStepId = steps[currentIndex - 1].id;
+				// Do not persist step when going backwards
 			}
 		} else {
 			// Direct navigation from stepper
-			const targetStepIndex = steps.findIndex((s) => s.id === direction);
+			const targetStepId = direction;
+			const targetStepIndex = steps.findIndex((s) => s.id === targetStepId);
 			const canNavigateDirectly =
-				completedSteps.has(direction) || // Target is already completed
-				direction === currentStepId || // Target is current
-				targetStepIndex < currentIndex || // Target is an earlier step
+				completedSteps.has(targetStepId) ||
+				targetStepId === currentStepId ||
+				targetStepIndex < currentIndex ||
 				(completedSteps.has(currentStepId) &&
-					targetStepIndex === currentIndex + 1); // Current is complete, target is next
+					targetStepIndex === currentIndex + 1);
 
 			if (canNavigateDirectly) {
-				currentStepId = direction;
+				currentStepId = targetStepId;
+				// Only persist if advancing beyond the last known persisted step via direct nav
+				if (
+					targetStepIndex > currentStoredStepIndex &&
+					completedSteps.has(targetStepId)
+				) {
+					// We should only persist if this direct nav actually means progress in the overall case.
+					// This condition ensures we are moving to a completed step that is further than what's stored.
+					// Or, more simply, if targetStepId is now the furthest *completed* step that isn't the final review step.
+					// For simplicity now: if target is further than stored, and it's now current, persist it.
+					// This might need refinement to ensure we only persist actual forward progression milestones.
+					newStepIdToPersist = targetStepId;
+				}
 			} else {
 				toast.warning('Cannot jump to an uncompleted future step.');
+				return; // Prevent completedSteps update below if navigation failed
 			}
 		}
-		// Ensure completedSteps is reactive for the stepper
+
+		if (newStepIdToPersist && newStepIdToPersist !== currentStoredStepId) {
+			if (caseItem) {
+				fetch(`/api/cases/${caseItem.id}/set-current-step`, {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ stepId: newStepIdToPersist }),
+				})
+					.then(async (response) => {
+						if (response.ok) {
+							const updatedCaseFromServer = await response.json();
+							// Update local caseItem to keep data fresh, especially the case_initiation_step_id
+							caseItem = updatedCaseFromServer;
+							console.log('Case current step persisted:', newStepIdToPersist);
+							// Optionally, show a subtle success toast or log
+						} else {
+							toast.error('Failed to save current step progress.');
+							console.error('Failed to persist step', await response.text());
+						}
+					})
+					.catch((err) => {
+						toast.error('Error saving current step progress.');
+						console.error('Error persisting step:', err);
+					});
+			}
+		}
 		completedSteps = new Set(completedSteps);
 	}
 
@@ -168,17 +266,28 @@
 		event: CustomEvent<{ stepId: InitiationStep; isComplete: boolean }>,
 	) {
 		const { stepId, isComplete } = event.detail;
+		const stepIndex = steps.findIndex((s) => s.id === stepId);
+
 		if (isComplete) {
 			if (!completedSteps.has(stepId)) {
 				completedSteps.add(stepId);
-				completedSteps = new Set(completedSteps);
 			}
 		} else {
+			// Step became incomplete
 			if (completedSteps.has(stepId)) {
 				completedSteps.delete(stepId);
-				completedSteps = new Set(completedSteps);
+			}
+			// Also remove all subsequent steps from completedSteps
+			if (stepIndex !== -1) {
+				// Ensure stepId was found
+				for (let i = stepIndex + 1; i < steps.length; i++) {
+					if (completedSteps.has(steps[i].id)) {
+						completedSteps.delete(steps[i].id);
+					}
+				}
 			}
 		}
+		completedSteps = new Set(completedSteps); // Force reactivity for Svelte
 	}
 
 	async function handleDeleteCase() {
@@ -314,6 +423,7 @@
 							isLastStep ? handleSubmitCase() : navigateStep('next')}
 						disabled={(currentStepId === 'terms' &&
 							(!completedSteps.has('terms') || isSavingAgreement)) ||
+							(currentStepId === 'files' && !completedSteps.has('files')) ||
 							(isLastStep && !canProceed())}
 						class="w-full sm:w-auto"
 					>

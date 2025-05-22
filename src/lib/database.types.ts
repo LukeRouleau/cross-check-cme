@@ -115,6 +115,7 @@ export type Database = {
 			cases: {
 				Row: {
 					admin_feedback: string | null;
+					case_initiation_step_id: string | null;
 					client_agreed_to_terms_id: string | null;
 					consultant_progress_notes: string | null;
 					created_at: string | null;
@@ -127,6 +128,7 @@ export type Database = {
 				};
 				Insert: {
 					admin_feedback?: string | null;
+					case_initiation_step_id?: string | null;
 					client_agreed_to_terms_id?: string | null;
 					consultant_progress_notes?: string | null;
 					created_at?: string | null;
@@ -139,6 +141,7 @@ export type Database = {
 				};
 				Update: {
 					admin_feedback?: string | null;
+					case_initiation_step_id?: string | null;
 					client_agreed_to_terms_id?: string | null;
 					consultant_progress_notes?: string | null;
 					created_at?: string | null;

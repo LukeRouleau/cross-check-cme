@@ -54,7 +54,7 @@ export const GET: RequestHandler = async ({ params, locals }) => {
 
 		const { data: documents, error: documentsError } = await supabaseServiceRole
 			.from('case_documents')
-			.select('id, file_name, file_type, file_size, uploaded_at') // Changed mime_type to file_type to match component
+			.select('id, file_name, mime_type, file_size_bytes, uploaded_at') // Changed file_size to file_size_bytes
 			.eq('case_id', caseId)
 			.order('uploaded_at', { ascending: false });
 
@@ -159,12 +159,12 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
 						case_id: caseId,
 						user_id: user.id, // Track who uploaded
 						file_name: file.name,
-						file_type: file.type, // Changed from mime_type in DB to file_type to match component
-						file_size: file.size, // Changed from file_size_bytes
+						mime_type: file.type,
+						file_size_bytes: file.size, // Changed file_size to file_size_bytes
 						storage_path: storagePath,
 						// uploaded_at is handled by db default (timestamptz)
 					})
-					.select('id, file_name, file_type, file_size, uploaded_at')
+					.select('id, file_name, mime_type, file_size_bytes, uploaded_at') // Changed file_size to file_size_bytes
 					.single();
 
 			if (insertError) {
