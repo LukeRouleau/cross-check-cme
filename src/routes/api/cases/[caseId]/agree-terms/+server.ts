@@ -60,27 +60,29 @@ export const POST: RequestHandler = async ({ request, locals, params }) => {
 	// If agreeing to terms, we need to create or find a user_terms_agreement record first
 	if (agreed && termsId) {
 		// First, check if a user agreement for this user+terms already exists
-		const { data: existingAgreement, error: agreementFetchError } = 
+		const { data: existingAgreement, error: agreementFetchError } =
 			await supabaseServiceRole
 				.from('user_terms_agreement')
 				.select('id')
 				.eq('user_id', user.id)
 				.eq('terms_id', termsId)
 				.maybeSingle();
-		
+
 		if (agreementFetchError) {
 			console.error(
 				`[API /agree-terms] Error checking existing terms agreement:`,
-				agreementFetchError.message
+				agreementFetchError.message,
 			);
 			throw kitError(500, 'Error checking existing terms agreement.');
 		}
 
 		// If an agreement already exists, use it
 		if (existingAgreement) {
-			console.log(`[API /agree-terms] Found existing terms agreement ID: ${existingAgreement.id}`);
+			console.log(
+				`[API /agree-terms] Found existing terms agreement ID: ${existingAgreement.id}`,
+			);
 			userTermsAgreementId = existingAgreement.id;
-		} 
+		}
 		// Otherwise, create a new agreement record
 		else {
 			const termsAgreementData: TablesInsert<'user_terms_agreement'> = {
@@ -89,22 +91,24 @@ export const POST: RequestHandler = async ({ request, locals, params }) => {
 				// agreed_at will be set to now() by default in the DB
 			};
 
-			const { data: newAgreement, error: insertError } = 
+			const { data: newAgreement, error: insertError } =
 				await supabaseServiceRole
 					.from('user_terms_agreement')
 					.insert(termsAgreementData)
 					.select('id')
 					.single();
-			
+
 			if (insertError) {
 				console.error(
 					`[API /agree-terms] Error creating terms agreement:`,
-					insertError.message
+					insertError.message,
 				);
 				throw kitError(500, 'Failed to create terms agreement record.');
 			}
 
-			console.log(`[API /agree-terms] Created new terms agreement ID: ${newAgreement.id}`);
+			console.log(
+				`[API /agree-terms] Created new terms agreement ID: ${newAgreement.id}`,
+			);
 			userTermsAgreementId = newAgreement.id;
 		}
 	}

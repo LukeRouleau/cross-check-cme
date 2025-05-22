@@ -15,12 +15,21 @@
 	let termsContent: Tables<'terms_of_service'> | null = null;
 	let isLoading = true;
 	let errorLoadingTerms: string | null = null;
-	
+
 	// Debug log to see prop changes
-	$: console.log('[TermsStep] Prop agreedToTerms changed to:', agreedToTerms, '(isLoading:', isLoading, ')');
+	$: console.log(
+		'[TermsStep] Prop agreedToTerms changed to:',
+		agreedToTerms,
+		'(isLoading:',
+		isLoading,
+		')',
+	);
 
 	onMount(async () => {
-		console.log('[TermsStep] onMount started. Initial agreedToTerms prop:', agreedToTerms);
+		console.log(
+			'[TermsStep] onMount started. Initial agreedToTerms prop:',
+			agreedToTerms,
+		);
 		isLoading = true;
 		errorLoadingTerms = null;
 		try {
@@ -30,46 +39,61 @@
 				throw new Error(errorData.message || 'Failed to load Terms of Service');
 			}
 			termsContent = await response.json();
-			console.log('[TermsStep] Successfully loaded termsContent:', termsContent?.version);
+			console.log(
+				'[TermsStep] Successfully loaded termsContent:',
+				termsContent?.version,
+			);
 		} catch (err) {
 			if (err instanceof Error) {
 				errorLoadingTerms = err.message;
 				toast.error('Could not load Terms of Service: ' + err.message);
 			} else {
 				errorLoadingTerms = 'An unknown error occurred';
-				toast.error('Could not load Terms of Service: An unknown error occurred');
+				toast.error(
+					'Could not load Terms of Service: An unknown error occurred',
+				);
 			}
 		} finally {
 			isLoading = false;
-			console.log('[TermsStep] onMount finished. isLoading:', isLoading, 'termsContent loaded:', !!termsContent);
+			console.log(
+				'[TermsStep] onMount finished. isLoading:',
+				isLoading,
+				'termsContent loaded:',
+				!!termsContent,
+			);
 		}
 	});
 
 	function handleCheckboxClick() {
 		if (isLoading || !termsContent) {
-			console.log('[TermsStep] Checkbox click ignored (isLoading or !termsContent)');
+			console.log(
+				'[TermsStep] Checkbox click ignored (isLoading or !termsContent)',
+			);
 			return;
 		}
-		
+
 		// ONE-WAY AGREEMENT: Only allow checking (not unchecking)
 		// If already agreed, do nothing
 		if (agreedToTerms) {
 			console.log('[TermsStep] Already agreed to terms, ignoring click');
 			return;
 		}
-		
+
 		// Only dispatch the event if we're agreeing (not disagreeing)
-		dispatch('termsAgreementChanged', { agreed: true, termsId: termsContent.id });
+		dispatch('termsAgreementChanged', {
+			agreed: true,
+			termsId: termsContent.id,
+		});
 	}
 </script>
 
-<div class="p-4 border rounded-md shadow-sm bg-card text-card-foreground">
-	<h2 class="text-xl font-semibold mb-4">Step 1: Terms of Service</h2>
+<div class="rounded-md border bg-card p-4 text-card-foreground shadow-sm">
+	<h2 class="mb-4 text-xl font-semibold">Step 1: Terms of Service</h2>
 
 	{#if isLoading}
 		<div class="flex items-center space-x-2">
 			<svg
-				class="animate-spin h-5 w-5 text-primary"
+				class="h-5 w-5 animate-spin text-primary"
 				xmlns="http://www.w3.org/2000/svg"
 				fill="none"
 				viewBox="0 0 24 24"
@@ -92,16 +116,16 @@
 		</div>
 	{:else if errorLoadingTerms}
 		<div
-			class="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg dark:bg-red-200 dark:text-red-800 flex items-center"
+			class="mb-4 flex items-center rounded-lg bg-red-100 p-4 text-sm text-red-700 dark:bg-red-200 dark:text-red-800"
 			role="alert"
 		>
-			<CircleAlert class="w-5 h-5 mr-2" />
+			<CircleAlert class="mr-2 h-5 w-5" />
 			<span class="font-medium">Error:</span>
 			{errorLoadingTerms}
 		</div>
 	{:else if termsContent}
 		<div
-			class="prose prose-sm max-w-none p-4 border rounded-md mb-4 bg-muted/30 h-64 overflow-y-auto"
+			class="prose prose-sm mb-4 h-64 max-w-none overflow-y-auto rounded-md border bg-muted/30 p-4"
 		>
 			<h3 class="text-lg font-semibold">
 				{termsContent.version} - Effective {new Date(
@@ -110,7 +134,7 @@
 			</h3>
 			<p>{termsContent.content || 'No content available for these terms.'}</p>
 		</div>
-		<div class="flex items-center space-x-2 mb-4">
+		<div class="mb-4 flex items-center space-x-2">
 			<Checkbox
 				id="terms-agree"
 				checked={agreedToTerms}
@@ -127,10 +151,10 @@
 
 		{#if agreedToTerms}
 			<div
-				class="p-3 text-sm text-green-700 bg-green-100 rounded-lg dark:bg-green-200 dark:text-green-800 flex items-center"
+				class="flex items-center rounded-lg bg-green-100 p-3 text-sm text-green-700 dark:bg-green-200 dark:text-green-800"
 				role="alert"
 			>
-				<CircleCheck class="w-5 h-5 mr-2" />
+				<CircleCheck class="mr-2 h-5 w-5" />
 				<span>You have agreed to the terms.</span>
 			</div>
 		{/if}

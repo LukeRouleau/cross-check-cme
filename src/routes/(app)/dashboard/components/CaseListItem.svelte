@@ -5,11 +5,18 @@
 	import Edit3 from '~icons/lucide/edit-3';
 	import FileText from '~icons/lucide/file-text';
 	import Clock from '~icons/lucide/clock';
+	import Trash2 from '~icons/lucide/trash-2';
+	import { toast } from 'svelte-sonner';
+	import { createEventDispatcher } from 'svelte';
 
 	type CaseRow = Database['public']['Tables']['cases']['Row'];
 	type CaseStatusType = Database['public']['Enums']['case_status'];
 
 	export let caseItem: CaseRow;
+
+	const dispatch = createEventDispatcher<{
+		deleted: { caseId: string };
+	}>();
 
 	const formatDate = (dateString: string | null | undefined) => {
 		if (!dateString) return 'N/A';
@@ -30,6 +37,38 @@
 		declined: 'Declined by Admin',
 		completed: 'Completed',
 	};
+
+	const isDraft = caseItem.status === 'draft';
+
+	async function handleDelete() {
+		const confirmed = window.confirm(
+			'Are you sure you want to delete this draft case? This action cannot be undone.',
+		);
+
+		if (!confirmed) return;
+
+		try {
+			const response = await fetch(`/api/cases/${caseItem.id}`, {
+				method: 'DELETE',
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json().catch(() => null);
+				throw new Error(
+					errorData?.message || `Failed to delete case: ${response.statusText}`,
+				);
+			}
+
+			toast.success('Case deleted successfully');
+
+			dispatch('deleted', { caseId: caseItem.id });
+
+			window.location.reload();
+		} catch (err) {
+			console.error('Error deleting case:', err);
+			toast.error(err instanceof Error ? err.message : 'Failed to delete case');
+		}
+	}
 </script>
 
 <Card.Root class="mb-4">
@@ -39,10 +78,26 @@
 				>{caseItem.id.substring(0, 8)}...</span
 			>
 		</Card.Title>
-		<Button href={`/case/${caseItem.id}/initiate`} variant="outline" size="sm">
-			<Edit3 class="mr-2 h-4 w-4" />
-			View / Edit
-		</Button>
+		<div class="flex items-center space-x-2">
+			<Button
+				href={`/case/${caseItem.id}/initiate`}
+				variant="outline"
+				size="sm"
+			>
+				<Edit3 class="mr-2 h-4 w-4" />
+				View / Edit
+			</Button>
+			{#if isDraft}
+				<Button
+					variant="destructive"
+					size="sm"
+					on:click={handleDelete}
+					title="Delete this draft case"
+				>
+					<Trash2 class="h-4 w-4" />
+				</Button>
+			{/if}
+		</div>
 	</Card.Header>
 	<Card.Content>
 		<div class="text-sm text-muted-foreground">

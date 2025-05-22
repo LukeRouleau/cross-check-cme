@@ -68,6 +68,14 @@
 		'in_progress',
 	]);
 	$: pastCases = filterCases(['completed', 'declined']);
+
+	// Handle case deletion from the list
+	function handleCaseDeleted(event: CustomEvent<{ caseId: string }>) {
+		const deletedCaseId = event.detail.caseId;
+		// Update local userCases array
+		userCases = userCases.filter((c) => c.id !== deletedCaseId);
+		// The reactive declarations will automatically update the filtered lists
+	}
 </script>
 
 <div class="container mx-auto p-4 md:p-6">
@@ -105,7 +113,7 @@
 		</h2>
 		{#if openCases.length > 0}
 			{#each openCases as caseItem (caseItem.id)}
-				<CaseListItem {caseItem} />
+				<CaseListItem {caseItem} on:deleted={handleCaseDeleted} />
 			{/each}
 		{:else}
 			<p class="text-muted-foreground">
@@ -126,7 +134,7 @@
 		</h2>
 		{#if inProgressCases.length > 0}
 			{#each inProgressCases as caseItem (caseItem.id)}
-				<CaseListItem {caseItem} />
+				<CaseListItem {caseItem} on:deleted={handleCaseDeleted} />
 			{/each}
 		{:else}
 			<p class="text-muted-foreground">
@@ -146,7 +154,7 @@
 		</h2>
 		{#if pastCases.length > 0}
 			{#each pastCases as caseItem (caseItem.id)}
-				<CaseListItem {caseItem} />
+				<CaseListItem {caseItem} on:deleted={handleCaseDeleted} />
 			{/each}
 		{:else}
 			<p class="text-muted-foreground">
