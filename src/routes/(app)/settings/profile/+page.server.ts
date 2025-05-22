@@ -94,7 +94,7 @@ export const actions = {
 		const { error } = await supabase.from('profiles').upsert({
 			id: user.id,
 			name,
-			updated_at: new Date(),
+			updated_at: new Date().toISOString(),
 		});
 
 		if (error) {
@@ -135,23 +135,27 @@ export const actions = {
 			return redirect(303, '/security-error');
 		}
 
-		const { data: customer, error } = await supabaseServiceRole
-			.from('stripe_customers')
-			.select('stripe_customer_id')
-			.eq('user_id', user.id)
-			.single();
+		const { data: customerData, error: customerError } =
+			await supabaseServiceRole
+				.from('stripe_customers')
+				.select('stripe_customer_id')
+				.eq('user_id', user.id)
+				.single();
 
-		if (error) {
-			console.error('Error fetching stripe customer:', error);
+		if (customerError || !customerData || !customerData.stripe_customer_id) {
+			console.error(
+				'Error fetching stripe_customer_id or customer_id is null:',
+				customerError,
+			);
 			return fail(500, {
-				errorMessage: 'Unknown error. If this persists please contact us.',
+				message: customerError?.message ?? 'Stripe customer ID not found.',
 			});
 		}
 
 		try {
 			const currentSubscriptions = await fetchCurrentUsersSubscription(
 				stripe,
-				customer.stripe_customer_id,
+				customerData.stripe_customer_id,
 			);
 
 			const cancelPromises = currentSubscriptions.map((sub) =>

@@ -1,4 +1,4 @@
-import { redirect } from '@sveltejs/kit';
+import { redirect, fail } from '@sveltejs/kit';
 
 export const load = async ({
 	url,
@@ -22,10 +22,19 @@ export const load = async ({
 		return redirect(303, '/settings/billing');
 	}
 
+	const { stripe_customer_id } = stripeCustomer;
+
+	if (!stripe_customer_id) {
+		return fail(500, {
+			error:
+				'User does not have a Stripe customer ID. Cannot create billing portal session.',
+		});
+	}
+
 	let billingPortalSessionUrl;
 	try {
 		const session = await stripe.billingPortal.sessions.create({
-			customer: stripeCustomer.stripe_customer_id,
+			customer: stripe_customer_id,
 			return_url: `${url.origin}/settings/billing`,
 		});
 		billingPortalSessionUrl = session.url;

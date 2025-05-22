@@ -1,5 +1,5 @@
 import { fetchCurrentUsersSubscription } from '$lib/stripe/client-helpers';
-import { error, redirect } from '@sveltejs/kit';
+import { error, redirect, fail } from '@sveltejs/kit';
 import Stripe from 'stripe';
 import type { PageServerLoad } from './$types';
 
@@ -38,7 +38,15 @@ export const load: PageServerLoad = async ({
 
 	let customer: string;
 	if (results && results.length > 0) {
-		customer = results[0].stripe_customer_id;
+		const firstResult = results[0];
+		if (firstResult && firstResult.stripe_customer_id) {
+			customer = firstResult.stripe_customer_id;
+		} else {
+			console.error('Stripe customer ID is null for the fetched user product.');
+			return fail(500, {
+				error: 'Failed to retrieve valid Stripe customer ID.',
+			});
+		}
 	} else {
 		const { id } = await stripe.customers.create({
 			email: user.email,

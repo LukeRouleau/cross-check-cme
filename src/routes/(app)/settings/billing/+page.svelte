@@ -6,7 +6,7 @@
 	export let data;
 
 	let {
-		products,
+		products = [],
 		// <!-- TODO: uncomment once userProducts are correctly supported -->
 		// userProducts,
 		currentSubscriptions,
@@ -50,7 +50,7 @@
 
 <!-- TODO: pass in user products once correctly supported -->
 <!-- {#if userProducts && userProducts.length > 0} -->
-<UserProducts userProducts={[]} {products} />
+<UserProducts userProducts={[]} products={products || []} />
 <!-- {/if} -->
 
 <section class="flex flex-col gap-3">

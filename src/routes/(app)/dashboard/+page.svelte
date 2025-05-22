@@ -1,34 +1,157 @@
 <script lang="ts">
-	import * as Card from '$lib/components/ui/card';
+	import type { PageData } from './$types';
+	import type { Database } from '$lib/database.types';
+	import AdminAvailabilityBanner from './components/AdminAvailabilityBanner.svelte';
+	import CaseListItem from './components/CaseListItem.svelte';
+	import { Button } from '$lib/components/ui/button';
+	import PlusCircle from '~icons/lucide/plus-circle';
+	import { Separator } from '$lib/components/ui/separator';
+	import { goto } from '$app/navigation';
+	import { toast } from 'svelte-sonner';
+
+	type CaseRow = Database['public']['Tables']['cases']['Row'];
+	type CaseStatusType = Database['public']['Enums']['case_status'];
+
+	export let data: PageData;
+
+	let userCases: CaseRow[] = data.userCases || [];
+	let adminSettings: PageData['adminSettings'] =
+		data.adminSettings === undefined ? null : data.adminSettings;
+
+	$: {
+		if (data.userCases !== undefined) {
+			userCases = data.userCases;
+		}
+		if (data && typeof data === 'object' && 'adminSettings' in data) {
+			adminSettings = data.adminSettings;
+		} else if (data.adminSettings === undefined) {
+			adminSettings = null;
+		}
+	}
+
+	const createNewCase = async () => {
+		const response = await fetch('/api/cases', {
+			method: 'POST',
+		});
+
+		if (response.ok) {
+			const newCase: CaseRow = await response.json();
+			toast.success('New case created successfully!');
+			goto(`/case/${newCase.id}/initiate`);
+		} else {
+			let errorMessage = 'Failed to create new case. Please try again.';
+			try {
+				// Try to parse as JSON, but don't fail if it's not
+				const errorData = await response.json();
+				if (errorData && errorData.message) {
+					errorMessage = errorData.message;
+				}
+			} catch (e) {
+				// Response was not JSON, use the default message or status text
+				if (response.statusText) {
+					errorMessage = `Failed to create new case: ${response.statusText}`;
+				}
+				console.error('Error response was not JSON:', e);
+			}
+			toast.error(errorMessage);
+		}
+	};
+
+	const filterCases = (statuses: CaseStatusType[]) => {
+		return userCases.filter((c) => statuses.includes(c.status));
+	};
+
+	$: openCases = filterCases(['draft']);
+	$: inProgressCases = filterCases([
+		'submitted',
+		'under_review',
+		'in_progress',
+	]);
+	$: pastCases = filterCases(['completed', 'declined']);
 </script>
 
-<svelte:head>
-	<title>Dashboard</title>
-</svelte:head>
+<div class="container mx-auto p-4 md:p-6">
+	<AdminAvailabilityBanner adminSettings={data.adminSettings} />
 
-<Card.Root>
-	<Card.Header>
-		<div class="flex flex-nowrap items-center gap-3">
-			<svg
-				xmlns="http://www.w3.org/2000/svg"
-				class="h-6 w-6 shrink-0 stroke-current text-yellow-500 dark:text-yellow-400"
-				fill="none"
-				viewBox="0 0 24 24"
-				><path
-					stroke-linecap="round"
-					stroke-linejoin="round"
-					stroke-width="2"
-					d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-				/></svg
+	<div class="mb-8 flex items-center justify-between">
+		<h1 class="text-3xl font-bold tracking-tight">Your Cases</h1>
+		<Button
+			on:click={createNewCase}
+			size="lg"
+			disabled={!data.adminSettings?.is_available}
+		>
+			<PlusCircle class="mr-2 h-5 w-5" />
+			Create New Case
+		</Button>
+	</div>
+
+	{#if adminSettings && !adminSettings.is_available}
+		<p
+			class="mb-6 rounded-md border border-yellow-300 bg-yellow-50 p-3 text-center text-sm text-yellow-700"
+		>
+			New case creation is temporarily disabled as the admin is currently
+			unavailable.
+			{#if adminSettings.availability_message}
+				{adminSettings.availability_message}{/if}
+		</p>
+	{/if}
+
+	<!-- Open Cases -->
+	<section class="mb-10">
+		<h2 class="mb-4 border-b pb-2 text-2xl font-semibold tracking-tight">
+			Open Cases <span class="text-sm text-muted-foreground"
+				>({openCases.length})</span
 			>
-			<Card.Title>Demo Content</Card.Title>
-		</div>
-		<Card.Description>
-			This page is just a placeholder. Replace this page with your app's content
-			and functionality.
-		</Card.Description>
-	</Card.Header>
-	<Card.Content>
-		The <a href="/settings" class="underline">settings</a> page is a functional demo.
-	</Card.Content>
-</Card.Root>
+		</h2>
+		{#if openCases.length > 0}
+			{#each openCases as caseItem (caseItem.id)}
+				<CaseListItem {caseItem} />
+			{/each}
+		{:else}
+			<p class="text-muted-foreground">
+				You have no open cases that require completion. Click "Create New Case"
+				to start one.
+			</p>
+		{/if}
+	</section>
+
+	<Separator class="my-8" />
+
+	<!-- In Progress Cases -->
+	<section class="mb-10">
+		<h2 class="mb-4 border-b pb-2 text-2xl font-semibold tracking-tight">
+			In Progress <span class="text-sm text-muted-foreground"
+				>({inProgressCases.length})</span
+			>
+		</h2>
+		{#if inProgressCases.length > 0}
+			{#each inProgressCases as caseItem (caseItem.id)}
+				<CaseListItem {caseItem} />
+			{/each}
+		{:else}
+			<p class="text-muted-foreground">
+				You have no cases currently in progress with the admin.
+			</p>
+		{/if}
+	</section>
+
+	<Separator class="my-8" />
+
+	<!-- Past Cases -->
+	<section>
+		<h2 class="mb-4 border-b pb-2 text-2xl font-semibold tracking-tight">
+			Case History <span class="text-sm text-muted-foreground"
+				>({pastCases.length})</span
+			>
+		</h2>
+		{#if pastCases.length > 0}
+			{#each pastCases as caseItem (caseItem.id)}
+				<CaseListItem {caseItem} />
+			{/each}
+		{:else}
+			<p class="text-muted-foreground">
+				You have no past completed or declined cases.
+			</p>
+		{/if}
+	</section>
+</div>

@@ -27,26 +27,19 @@ export const load: PageServerLoad = async ({
 		return { products };
 	}
 
-	// const { data: userProducts, error: userProductsError } =
-	// 	await supabaseServiceRole
-	// 		.from('user_products')
-	// 		.select('stripe_product_id, type')
-	// 		.eq('user_id', user.id);
+	const { stripe_customer_id } = stripeCustomer;
 
-	// if (userProductsError) {
-	// 	console.error(userProductsError);
-	// 	return { products: sortedProducts };
-	// }
-
-	// TODO: we'll need to use that once we correctly store the user products
-	// if (
-	// 	userProducts.findIndex((product) => product.type === 'subscription') < 0
-	// ) {
-	// 	return { products: sortedProducts, userProducts };
-	// }
+	if (!stripe_customer_id) {
+		// If there's no stripe_customer_id, the user has no subscriptions with Stripe.
+		// Return empty or appropriate data structure.
+		return {
+			activeProducts: [],
+			portalSessionUrl: null, // Or handle as needed
+		};
+	}
 
 	const { data: subscriptions } = await stripe.subscriptions.list({
-		customer: stripeCustomer.stripe_customer_id,
+		customer: stripe_customer_id, // Now guaranteed to be a string
 		limit: 100,
 	});
 

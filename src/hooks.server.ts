@@ -11,9 +11,10 @@ import { createServerClient } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
 import type { Handle } from '@sveltejs/kit';
 import Stripe from 'stripe';
+import type { Database } from '$lib/database.types';
 
 export const handle: Handle = async ({ event, resolve }) => {
-	event.locals.supabase = createServerClient(
+	event.locals.supabase = createServerClient<Database>(
 		PUBLIC_SUPABASE_URL,
 		PUBLIC_SUPABASE_ANON_KEY,
 		{
@@ -35,7 +36,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 		},
 	);
 
-	event.locals.supabaseServiceRole = createClient(
+	event.locals.supabaseServiceRole = createClient<Database>(
 		PUBLIC_SUPABASE_URL,
 		PRIVATE_SUPABASE_SERVICE_ROLE,
 		{ auth: { persistSession: false } },

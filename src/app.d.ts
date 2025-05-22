@@ -6,7 +6,7 @@ import {
 } from '@supabase/supabase-js';
 import Stripe from 'stripe';
 import 'unplugin-icons/types/svelte';
-import { Database } from './DatabaseDefinitions';
+import { Database } from '$lib/database.types';
 
 // See https://kit.svelte.dev/docs/types#app
 // for information about these interfaces

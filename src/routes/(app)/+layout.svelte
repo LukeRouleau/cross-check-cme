@@ -10,9 +10,12 @@
 	import * as Tooltip from '$lib/components/ui/tooltip';
 	import Breadcrumbs from './components/breadcrumbs.svelte';
 	import NavLink from './components/nav-link.svelte';
+	import { Toaster } from 'svelte-sonner';
 
 	export let data;
 </script>
+
+<Toaster richColors />
 
 <div class="flex min-h-screen w-full flex-col bg-muted/40">
 	<aside
