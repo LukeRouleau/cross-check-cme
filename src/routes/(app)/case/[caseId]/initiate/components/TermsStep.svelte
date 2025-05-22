@@ -6,8 +6,6 @@
 	import { toast } from 'svelte-sonner';
 	import { CircleCheck, CircleAlert } from 'lucide-svelte';
 
-	// eslint-disable-next-line svelte/valid-compile
-	export let caseId: string; // Will be used for API calls to update case agreement status
 	export let agreedToTerms: boolean; // Prop from parent, this is the source of truth for checked state
 
 	const dispatch = createEventDispatcher();
@@ -16,13 +14,41 @@
 	let isLoading = true;
 	let errorLoadingTerms: string | null = null;
 
+	let localChecked: boolean;
+	let internalClick = false; // Flag to manage internal clicks
+
+	// When prop changes, update localChecked.
+	// If it was an internal click that caused this, reset the flag only AFTER localChecked matches agreedToTerms.
+	$: {
+		if (internalClick) {
+			// We made an optimistic update and are waiting for the prop to confirm.
+			if (localChecked === agreedToTerms) {
+				// Prop confirmed the optimistic update (e.g. localChecked=true, agreedToTerms became true).
+				internalClick = false;
+			} else {
+				// Prop contradicts the optimistic update.
+				// This typically means the API save failed and agreedToTerms prop remained false
+				// when localChecked was optimistically set to true.
+				// Revert localChecked to the source of truth (the prop) and reset the flag.
+				localChecked = agreedToTerms; // This will revert the optimistic UI change
+				internalClick = false;
+			}
+		} else {
+			// Not an internal click flow, or internal click cycle has completed.
+			// This ensures localChecked syncs with agreedToTerms if it changes externally,
+			// or for the initial setup.
+			if (localChecked !== agreedToTerms) {
+				localChecked = agreedToTerms;
+			}
+		}
+	}
+
 	// Debug log to see prop changes
 	$: console.log(
 		'[TermsStep] Prop agreedToTerms changed to:',
 		agreedToTerms,
-		'(isLoading:',
-		isLoading,
-		')',
+		'localChecked is now:',
+		localChecked,
 	);
 
 	onMount(async () => {
@@ -30,6 +56,7 @@
 			'[TermsStep] onMount started. Initial agreedToTerms prop:',
 			agreedToTerms,
 		);
+		localChecked = agreedToTerms; // Initial sync
 		isLoading = true;
 		errorLoadingTerms = null;
 		try {
@@ -65,21 +92,21 @@
 	});
 
 	function handleCheckboxClick() {
-		if (isLoading || !termsContent) {
-			console.log(
-				'[TermsStep] Checkbox click ignored (isLoading or !termsContent)',
-			);
-			return;
-		}
+		if (isLoading || !termsContent) return;
 
-		// ONE-WAY AGREEMENT: Only allow checking (not unchecking)
-		// If already agreed, do nothing
 		if (agreedToTerms) {
-			console.log('[TermsStep] Already agreed to terms, ignoring click');
+			// Check against the prop for the source of truth of agreement
+			toast.info(
+				'Terms are already agreed. Agreement cannot be retracted here.',
+			);
+			if (!localChecked) localChecked = true; // Ensure UI consistency if somehow out of sync
 			return;
 		}
 
-		// Only dispatch the event if we're agreeing (not disagreeing)
+		// If not yet agreed (prop: agreedToTerms is false), this click is an attempt to agree.
+		internalClick = true;
+		localChecked = true; // Optimistically update UI
+
 		dispatch('termsAgreementChanged', {
 			agreed: true,
 			termsId: termsContent.id,
@@ -137,7 +164,7 @@
 		<div class="mb-4 flex items-center space-x-2">
 			<Checkbox
 				id="terms-agree"
-				checked={agreedToTerms}
+				bind:checked={localChecked}
 				disabled={!termsContent || isLoading || agreedToTerms}
 				on:click={handleCheckboxClick}
 			/>
