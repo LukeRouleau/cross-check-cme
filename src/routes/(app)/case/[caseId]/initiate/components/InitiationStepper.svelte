@@ -9,19 +9,18 @@
 	const dispatch = createEventDispatcher();
 
 	function handleClick(stepId: InitiationStep) {
-		// Allow navigation to current, or any previously completed step,
-		// or any step that comes before the current step (even if not explicitly in completedSteps yet)
 		const targetStepIndex = steps.findIndex((s) => s.id === stepId);
 		const currentStepIndex = steps.findIndex((s) => s.id === currentStepId);
 
 		if (
-			stepId === currentStepId ||
-			completedSteps.has(stepId) ||
-			targetStepIndex < currentStepIndex
+			stepId === currentStepId || // Current step
+			completedSteps.has(stepId) || // Any completed step
+			targetStepIndex < currentStepIndex || // Any previous step
+			(completedSteps.has(currentStepId) &&
+				targetStepIndex === currentStepIndex + 1) // Next step if current is complete
 		) {
 			dispatch('navigateToStepRequest', stepId);
 		} else {
-			// Optionally, provide feedback if user clicks a disabled future step
 			console.log('Cannot navigate to a future, uncompleted step directly.');
 		}
 	}
@@ -30,6 +29,10 @@
 <nav aria-label="Case Initiation Steps" class="mb-6">
 	<ol class="flex items-center space-x-2 text-sm font-medium text-gray-500">
 		{#each steps as step, i (step.id)}
+			{@const currentStepIndexValue = steps.findIndex(
+				(s) => s.id === currentStepId,
+			)}
+			<!-- To avoid recomputing in class directives -->
 			<li>
 				<button
 					on:click={() => handleClick(step.id)}
@@ -37,21 +40,38 @@
 					class:text-primary={currentStepId === step.id}
 					class:hover:text-primary-hover={currentStepId !== step.id &&
 						(completedSteps.has(step.id) ||
-							i < steps.findIndex((s) => s.id === currentStepId))}
+							i < currentStepIndexValue ||
+							(completedSteps.has(currentStepId) &&
+								i === currentStepIndexValue + 1))}
 					class:cursor-not-allowed={currentStepId !== step.id &&
-						!completedSteps.has(step.id) &&
-						i > steps.findIndex((s) => s.id === currentStepId)}
+						!(
+							completedSteps.has(step.id) ||
+							i < currentStepIndexValue ||
+							(completedSteps.has(currentStepId) &&
+								i === currentStepIndexValue + 1)
+						)}
 					class:opacity-60={currentStepId !== step.id &&
-						!completedSteps.has(step.id) &&
-						i > steps.findIndex((s) => s.id === currentStepId)}
-					disabled={currentStepId !== step.id &&
-						!completedSteps.has(step.id) &&
-						i > steps.findIndex((s) => s.id === currentStepId)}
+						!(
+							completedSteps.has(step.id) ||
+							i < currentStepIndexValue ||
+							(completedSteps.has(currentStepId) &&
+								i === currentStepIndexValue + 1)
+						)}
+					disabled={currentStepId === step.id
+						? false
+						: !(
+								completedSteps.has(step.id) ||
+								i < currentStepIndexValue ||
+								(completedSteps.has(currentStepId) &&
+									i === currentStepIndexValue + 1)
+							)}
 					aria-current={currentStepId === step.id ? 'step' : undefined}
 				>
-					{#if completedSteps.has(step.id) && currentStepId !== step.id}
+					{#if completedSteps.has(step.id)}
 						<svg
-							class="mr-1.5 h-4 w-4 text-green-500"
+							class="mr-1.5 h-4 w-4"
+							class:text-green-500={currentStepId !== step.id}
+							class:text-primary={currentStepId === step.id}
 							fill="currentColor"
 							viewBox="0 0 20 20"
 							><path

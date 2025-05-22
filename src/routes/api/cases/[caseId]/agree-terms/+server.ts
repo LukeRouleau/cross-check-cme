@@ -119,23 +119,49 @@ export const POST: RequestHandler = async ({ request, locals, params }) => {
 		// updated_at is handled by a DB trigger, no need to set it manually here
 	};
 
-	const { data: updatedCase, error: updateError } = await supabaseServiceRole
+	const { error: updateError, status: updateStatus } = await supabaseServiceRole
 		.from('cases')
 		.update(updateData)
-		.eq('id', caseId)
-		.select('*')
-		.single();
+		.eq('id', caseId);
 
 	if (updateError) {
 		console.error(
 			`[API /agree-terms] Error updating case ${caseId}:`,
 			updateError.message,
 		);
-		throw kitError(500, 'Failed to update terms agreement.');
+		// Consider using updateStatus if available and more specific, e.g. for 404 on update if id not found
+		throw kitError(
+			500,
+			`Failed to update terms agreement: ${updateError.message}`,
+		);
+	}
+
+	// Optional: Could check updateStatus here for non-error cases like 204 No Content, though PostgrestError should signal actual failures.
+	console.log(
+		`[API /agree-terms] Case ${caseId} DB update request processed (status: ${updateStatus}). client_agreed_to_terms_id was set to ${userTermsAgreementId}`,
+	);
+
+	// Refetch the case to ensure we get the absolute latest state
+	const { data: finalCaseState, error: refetchError } =
+		await supabaseServiceRole
+			.from('cases')
+			.select('*')
+			.eq('id', caseId)
+			.single();
+
+	if (refetchError) {
+		console.error(
+			`[API /agree-terms] Error refetching case ${caseId} after update:`,
+			refetchError.message,
+		);
+		throw kitError(500, 'Failed to confirm case update after refetch.');
+	}
+	if (!finalCaseState) {
+		throw kitError(404, 'Case not found after update and refetch.');
 	}
 
 	console.log(
-		`[API /agree-terms] Case ${caseId} updated successfully. Agreed to terms ID: ${updatedCase.client_agreed_to_terms_id}`,
+		`[API /agree-terms] Refetched case ${caseId}. Agreed to terms ID: ${finalCaseState.client_agreed_to_terms_id}`,
 	);
-	return json(updatedCase);
+	return json(finalCaseState);
 };

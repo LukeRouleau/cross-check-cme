@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, createEventDispatcher } from 'svelte';
 	import { page } from '$app/stores';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
@@ -42,10 +42,23 @@
 	let isUploading = false;
 	let dragOver = false;
 
+	const dispatch = createEventDispatcher();
+
 	onMount(() => {
 		caseId = $page.params.caseId;
 		fetchUploadedDocuments();
 	});
+
+	$: dispatchStepStatus(uploadedDocuments);
+
+	function dispatchStepStatus(documents: CaseDocument[]) {
+		if (caseId) {
+			dispatch('stepStatus', {
+				stepId: 'files',
+				isComplete: documents.length > 0,
+			});
+		}
+	}
 
 	async function fetchUploadedDocuments() {
 		if (!caseId) return;
@@ -155,7 +168,7 @@
 			// const newDocs = await response.json(); // Assuming server returns newly created document records
 			toast.success(`${selectedFiles.length} file(s) uploaded successfully!`);
 			selectedFiles = [];
-			await fetchUploadedDocuments(); // Refresh the list of uploaded documents
+			await fetchUploadedDocuments(); // This will refresh and trigger reactive dispatch
 		} catch (error) {
 			console.error('Error uploading files:', error);
 			toast.error(

@@ -27,16 +27,10 @@
 				internalClick = false;
 			} else {
 				// Prop contradicts the optimistic update.
-				// This typically means the API save failed and agreedToTerms prop remained false
-				// when localChecked was optimistically set to true.
-				// Revert localChecked to the source of truth (the prop) and reset the flag.
 				localChecked = agreedToTerms; // This will revert the optimistic UI change
 				internalClick = false;
 			}
 		} else {
-			// Not an internal click flow, or internal click cycle has completed.
-			// This ensures localChecked syncs with agreedToTerms if it changes externally,
-			// or for the initial setup.
 			if (localChecked !== agreedToTerms) {
 				localChecked = agreedToTerms;
 			}

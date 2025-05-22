@@ -41,34 +41,35 @@
 	$: {
 		let newCaseItem = data?.caseItem;
 
-		// Update caseItem if it's the initial load or if the case ID from props changes
 		if (
 			newCaseItem &&
 			(caseItem === undefined || (caseItem && caseItem.id !== newCaseItem.id))
 		) {
 			caseItem = newCaseItem;
 		} else if (!newCaseItem && data !== undefined) {
-			// data loaded, but no caseItem
 			caseItem = undefined;
 		}
 
-		// Update completedSteps based on the current caseItem's agreement status
-		if (caseItem?.client_agreed_to_terms_id) {
-			if (!completedSteps.has('terms')) {
-				completedSteps.add('terms');
-				completedSteps = new Set(completedSteps); // Trigger reactivity for the Set
-			}
-		} else {
-			if (completedSteps.has('terms')) {
-				completedSteps.delete('terms');
-				completedSteps = new Set(completedSteps); // Trigger reactivity for the Set
-			}
-		}
-		// TODO: Logic to determine initial step based on case progress if user returns
+		// Update for 'files' step completion is handled by handleStepStatusChange via event from FileUploadStep
 	}
 
 	// Derive currentAgreedStatus reactively from caseItem
 	$: currentAgreedStatus = !!caseItem?.client_agreed_to_terms_id;
+
+	// Reactively update completedSteps for the 'terms' step based on currentAgreedStatus
+	$: {
+		if (currentAgreedStatus) {
+			if (!completedSteps.has('terms')) {
+				completedSteps.add('terms');
+				completedSteps = new Set(completedSteps); // Trigger reactivity
+			}
+		} else {
+			if (completedSteps.has('terms')) {
+				completedSteps.delete('terms');
+				completedSteps = new Set(completedSteps); // Trigger reactivity
+			}
+		}
+	}
 
 	$: isDraft = caseItem?.status === 'draft';
 	$: currentStepIndex = steps.findIndex((s) => s.id === currentStepId);
@@ -91,23 +92,21 @@
 				);
 
 			const updatedCase = await response.json();
+			caseItem = updatedCase; // This triggers reactive updates for currentAgreedStatus etc.
 
-			// Key change: Assign updatedCase to caseItem.
-			// This will trigger reactive updates for currentAgreedStatus and the $:{} block for completedSteps.
-			caseItem = updatedCase;
+			// For the toast, use the value directly from the server response to avoid race conditions with reactive updates
+			const serverConfirmedAgreement = !!updatedCase?.client_agreed_to_terms_id;
 
-			// Toast based on the action and the new (reactively updated) currentAgreedStatus
-			if (agreed && currentAgreedStatus) {
-				// User action was 'agree' and it's now agreed
+			// Toast based on the action and the server-confirmed status
+			if (agreed && serverConfirmedAgreement) {
 				toast.success('Terms of Service agreed.');
-			} else if (agreed && !currentAgreedStatus) {
-				// User action was 'agree' but it's not agreed (e.g. server rejected)
+			} else if (agreed && !serverConfirmedAgreement) {
 				toast.warning('Terms agreement could not be confirmed by the server.');
 			}
 			// No specific toast for retraction as TermsStep only sends agreed:true
 
-			// Force re-render of keyed children as an additional measure
-			componentKey += 1;
+			// Force re-render of keyed children as an additional measure if needed, but usually reactive updates suffice
+			// componentKey += 1;
 		} catch (err) {
 			toast.error(err instanceof Error ? err.message : 'Update failed');
 			// On error, caseItem is not updated. `currentAgreedStatus` remains as it was.
@@ -118,9 +117,11 @@
 	}
 
 	function canProceed(): boolean {
-		if (currentStepId === 'terms') return currentAgreedStatus;
-		// Add checks for other steps if needed (e.g., at least one file uploaded for 'files' step)
-		return true; // Default to allow proceeding for other steps for now
+		if (currentStepId === 'terms') return completedSteps.has('terms');
+		if (currentStepId === 'files') return completedSteps.has('files');
+		// Add checks for other steps if needed
+		// For example, for 'instructions': return completedSteps.has('instructions');
+		return true; // Default for other steps for now
 	}
 
 	function navigateStep(direction: 'next' | 'previous' | InitiationStep) {
@@ -141,11 +142,14 @@
 		} else {
 			// Direct navigation from stepper
 			const targetStepIndex = steps.findIndex((s) => s.id === direction);
-			const currentCompletedOrEarlier =
-				completedSteps.has(direction) ||
-				direction === currentStepId ||
-				targetStepIndex < currentIndex;
-			if (currentCompletedOrEarlier) {
+			const canNavigateDirectly =
+				completedSteps.has(direction) || // Target is already completed
+				direction === currentStepId || // Target is current
+				targetStepIndex < currentIndex || // Target is an earlier step
+				(completedSteps.has(currentStepId) &&
+					targetStepIndex === currentIndex + 1); // Current is complete, target is next
+
+			if (canNavigateDirectly) {
 				currentStepId = direction;
 			} else {
 				toast.warning('Cannot jump to an uncompleted future step.');
@@ -158,6 +162,23 @@
 	// Dedicated handler for the custom event from Stepper
 	function handleNavigateToStepRequest(event: CustomEvent<InitiationStep>) {
 		navigateStep(event.detail);
+	}
+
+	function handleStepStatusChange(
+		event: CustomEvent<{ stepId: InitiationStep; isComplete: boolean }>,
+	) {
+		const { stepId, isComplete } = event.detail;
+		if (isComplete) {
+			if (!completedSteps.has(stepId)) {
+				completedSteps.add(stepId);
+				completedSteps = new Set(completedSteps);
+			}
+		} else {
+			if (completedSteps.has(stepId)) {
+				completedSteps.delete(stepId);
+				completedSteps = new Set(completedSteps);
+			}
+		}
 	}
 
 	async function handleDeleteCase() {
@@ -226,7 +247,10 @@
 						on:termsAgreementChanged={handleTermsAgreementChanged}
 					/>
 				{:else if currentStepId === 'files'}
-					<FileUploadStep caseId={caseItem.id} />
+					<FileUploadStep
+						caseId={caseItem.id}
+						on:stepStatus={handleStepStatusChange}
+					/>
 				{:else if currentStepId === 'instructions'}
 					<div
 						class="rounded-md border bg-card p-6 text-card-foreground shadow-sm"
@@ -289,7 +313,7 @@
 						on:click={() =>
 							isLastStep ? handleSubmitCase() : navigateStep('next')}
 						disabled={(currentStepId === 'terms' &&
-							(!currentAgreedStatus || isSavingAgreement)) ||
+							(!completedSteps.has('terms') || isSavingAgreement)) ||
 							(isLastStep && !canProceed())}
 						class="w-full sm:w-auto"
 					>
