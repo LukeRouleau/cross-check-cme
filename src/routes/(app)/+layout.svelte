@@ -15,7 +15,7 @@
 	export let data;
 </script>
 
-<Toaster richColors />
+<Toaster richColors position="top-right" />
 
 <div class="flex min-h-screen w-full flex-col bg-muted/40">
 	<aside
