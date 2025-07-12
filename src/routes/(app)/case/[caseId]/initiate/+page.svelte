@@ -4,6 +4,7 @@
 	import { toast } from 'svelte-sonner';
 	import TermsStep from './components/TermsStep.svelte';
 	import FileUploadStep from './components/FileUploadStep.svelte';
+	import InstructionsStep from './components/InstructionsStep.svelte';
 	import InitiationStepper from './components/InitiationStepper.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import type { Tables } from '$lib/database.types';
@@ -116,6 +117,22 @@
 		}
 	}
 
+	// Live update for instructions completion based on custom_instructions
+	$: if (initialized && caseItem) {
+		const hasInstructions = !!(caseItem.custom_instructions?.trim());
+		if (hasInstructions) {
+			if (!completedSteps.has('instructions')) {
+				completedSteps.add('instructions');
+				completedSteps = new Set(completedSteps);
+			}
+		} else {
+			if (completedSteps.has('instructions')) {
+				completedSteps.delete('instructions');
+				completedSteps = new Set(completedSteps);
+			}
+		}
+	}
+
 	$: isDraft = caseItem?.status === 'draft';
 	$: currentStepIndex = steps.findIndex((s) => s.id === currentStepId);
 
@@ -164,8 +181,8 @@
 	function canProceed(): boolean {
 		if (currentStepId === 'terms') return completedSteps.has('terms');
 		if (currentStepId === 'files') return completedSteps.has('files');
+		if (currentStepId === 'instructions') return completedSteps.has('instructions');
 		// Add checks for other steps if needed
-		// For example, for 'instructions': return completedSteps.has('instructions');
 		return true; // Default for other steps for now
 	}
 
@@ -361,15 +378,11 @@
 						on:stepStatus={handleStepStatusChange}
 					/>
 				{:else if currentStepId === 'instructions'}
-					<div
-						class="rounded-md border bg-card p-6 text-card-foreground shadow-sm"
-					>
-						<h2 class="mb-3 text-xl font-semibold">
-							Step 3: Provide Instructions
-						</h2>
-						<p>Instructions form will go here...</p>
-						<!-- TODO: Implement InstructionsStep.svelte -->
-					</div>
+					<InstructionsStep
+						caseId={caseItem.id}
+						initialInstructions={caseItem.custom_instructions}
+						on:stepStatus={handleStepStatusChange}
+					/>
 				{:else if currentStepId === 'payment'}
 					<div
 						class="rounded-md border bg-card p-6 text-card-foreground shadow-sm"
@@ -424,6 +437,7 @@
 						disabled={(currentStepId === 'terms' &&
 							(!completedSteps.has('terms') || isSavingAgreement)) ||
 							(currentStepId === 'files' && !completedSteps.has('files')) ||
+							(currentStepId === 'instructions' && !completedSteps.has('instructions')) ||
 							(isLastStep && !canProceed())}
 						class="w-full sm:w-auto"
 					>
