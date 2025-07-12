@@ -8,3 +8,16 @@ node_modules
 !.env.example
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# Test results
+/test-results/
+/playwright-report/
+/coverage/
+/tests/visual/test-results/
+/tests/accessibility/test-results/
+/tests/performance/test-results/
+*.png
+*.jpg
+*.jpeg
+!test-screenshots/
+playwright/.cache/
